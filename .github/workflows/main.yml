@@ -54,7 +54,7 @@ jobs:
             make install
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
-            yum install -y python3-devel python-devel &&
+            yum install -y python3-devel python-devel readline-devel &&
             wget https://github.com/lua/lua/archive/refs/tags/v5.4.6.tar.gz &&
             tar zxfv v5.4.6.tar.gz &&
             cd lua-5.4.6 &&
