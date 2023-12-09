@@ -1,0 +1,6 @@
+[submodule "luban"]
+	path = luban
+	url = https://github.com/uopensail/luban.git
+[submodule "sol2"]
+	path = sol2
+	url = https://github.com/ThePhD/sol2.git
