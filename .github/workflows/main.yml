@@ -47,16 +47,16 @@ jobs:
           CIBW_ENVIRONMENT: DEBUG=${{ env.CIBW_ENVIRONMENT_DEBUG }}
           CIBW_BEFORE_ALL_MACOS: >
             brew install rocksdb &&
-            curl -R -O http://www.lua.org/ftp/lua-5.4.6.tar.gz &&
-            tar zxf lua-5.4.6.tar.gz &&
+            wget https://github.com/lua/lua/archive/refs/tags/v5.4.6.tar.gz &&
+            tar zxfv v5.4.6.tar.gz &&
             cd lua-5.4.6 &&
             make all MYCFLAGS=-fPIC &&
             make install
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
             yum install -y python3-devel python-devel &&
-            curl -R -O http://www.lua.org/ftp/lua-5.4.6.tar.gz &&
-            tar zxf lua-5.4.6.tar.gz &&
+            wget https://github.com/lua/lua/archive/refs/tags/v5.4.6.tar.gz &&
+            tar zxfv v5.4.6.tar.gz &&
             cd lua-5.4.6 &&
             make all MYCFLAGS=-fPIC &&
             make install
