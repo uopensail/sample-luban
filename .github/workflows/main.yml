@@ -50,7 +50,7 @@ jobs:
             curl -R -O http://www.lua.org/ftp/lua-5.4.6.tar.gz &&
             tar zxf lua-5.4.6.tar.gz &&
             cd lua-5.4.6 &&
-            make all test &&
+            make all MYCFLAGS=-fPIC &&
             make install
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
@@ -58,7 +58,7 @@ jobs:
             curl -R -O http://www.lua.org/ftp/lua-5.4.6.tar.gz &&
             tar zxf lua-5.4.6.tar.gz &&
             cd lua-5.4.6 &&
-            make all test &&
+            make all MYCFLAGS=-fPIC &&
             make install
           CIBW_BEFORE_BUILD: >
             pip install pybind11 ninja
