@@ -29,7 +29,7 @@ SET(SAMPLE_SOURCE src/pool.cc src/lua_plugin.cc src/sample.cc)
 
 
 add_library(sample_luban_static STATIC ${SAMPLE_SOURCE})
-4(sample_luban_static PUBLIC liblua.a  luban_static pthread)
+(sample_luban_static PUBLIC liblua.a  luban_static pthread)
 add_dependencies(sample_luban_static luban_static)
 
 
