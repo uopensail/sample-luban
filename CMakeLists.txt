@@ -29,7 +29,7 @@ SET(SAMPLE_SOURCE src/pool.cc src/lua_plugin.cc src/sample.cc)
 
 
 add_library(sample_luban_static STATIC ${SAMPLE_SOURCE})
-target_link_libraries(sample_luban_static PUBLIC liblua.a  luban_static)
+4(sample_luban_static PUBLIC liblua.a  luban_static pthread)
 add_dependencies(sample_luban_static luban_static)
 
 
@@ -46,4 +46,4 @@ message(STATUS "PYTHON3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
 find_package(pybind11 REQUIRED)
 # Define the Python module
 pybind11_add_module(pysampletoolkit  src/pysample.cc )
-target_link_libraries(pysampletoolkit PRIVATE liblua.a sample_luban_static luban_static)
+target_link_libraries(pysampletoolkit PRIVATE liblua.a sample_luban_static luban_static pthread)
