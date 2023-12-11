@@ -21,7 +21,7 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
         tokens.push_back(token);
     }
 
-    return std::move(tokens);
+    return tokens;
 }
 std::unordered_map<std::string, luban::SharedFeaturesPtr> load(std::string file_path) {
   std::unordered_map<std::string, luban::SharedFeaturesPtr> items;

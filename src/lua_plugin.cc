@@ -138,7 +138,7 @@ std::shared_ptr<luban::Features> LuaPluginBridge::process_user(std::shared_ptr<l
         sol::error err = result;
         
         std::cerr << "Error calling lua function: " << err.what() << std::endl;
-        return user_feature;
+        return nullptr;
     }else {
   
         auto ret = std::shared_ptr<luban::Features>(result);
@@ -153,7 +153,7 @@ std::shared_ptr<luban::Features> LuaPluginBridge::process_item(std::shared_ptr<l
         sol::error err = result;
         
         std::cerr << "Error calling lua function: " << err.what() << std::endl;
-        return item_feature;
+        return nullptr;
     }else {
   
         auto ret = std::shared_ptr<luban::Features>(result);
