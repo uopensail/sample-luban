@@ -35,18 +35,19 @@ add_library(sample_luban_static STATIC ${SAMPLE_SOURCE})
 target_link_libraries(sample_luban_static PUBLIC liblua.a  luban_static pthread)
 add_dependencies(sample_luban_static luban_static)
 
+option(PYBIND "Description of PYBIND" ON)
+if (PYBIND)
+    # Find and link to Python
+    find_package(Python3 COMPONENTS Interpreter Development)
+    include_directories(${Python3_INCLUDE_DIRS})
+    message(STATUS "PYTHON3_LIBRARIES = ${Python3_LIBRARIES}")
+    message(STATUS "PYTHON3_EXECUTABLE = ${PYTHON_EXECUTABLE}")
+    message(STATUS "PYTHON3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
 
 
-# Find and link to Python
-find_package(Python3 COMPONENTS Interpreter Development)
-include_directories(${Python3_INCLUDE_DIRS})
-message(STATUS "PYTHON3_LIBRARIES = ${Python3_LIBRARIES}")
-message(STATUS "PYTHON3_EXECUTABLE = ${PYTHON_EXECUTABLE}")
-message(STATUS "PYTHON3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
-
-
-# Include pybind11
-find_package(pybind11 REQUIRED)
-# Define the Python module
-pybind11_add_module(pysampletoolkit  src/pysample.cc )
-target_link_libraries(pysampletoolkit PRIVATE liblua.a sample_luban_static luban_static pthread)
+    # Include pybind11
+    find_package(pybind11 REQUIRED)
+    # Define the Python module
+    pybind11_add_module(pysampletoolkit  src/pysample.cc )
+    target_link_libraries(pysampletoolkit PRIVATE liblua.a sample_luban_static luban_static pthread)
+endif()
