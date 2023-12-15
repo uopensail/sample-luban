@@ -28,7 +28,16 @@ void sample_luban_delete_pool_getter(void * pool_getter_ptr) {
         delete pool_getter;
     }
 }
-
+void *sample_luban_new_features(char *feature_json) {
+    auto feature = new luban::Features(std::string_view(feature_json, strlen(feature_json)));
+    return feature;
+}
+void sample_luban_delete_features(void *feature_ptr) {
+    auto feature = (luban::Features*)feature_ptr;
+    if (feature != nullptr) {
+        delete feature;
+    }
+}
 void*  sample_luban_new_toolkit(char *plugin_file) {
     auto toolkit = new sample_luban::SampleToolkit(std::string(plugin_file));
     return (void*) toolkit;
