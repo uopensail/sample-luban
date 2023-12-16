@@ -10,16 +10,13 @@ extern "C"
     void sample_luban_update_pool(void *pool_getter_ptr, int index, char *pool_file);
     void sample_luban_delete_pool_getter(void *pool_getter_ptr);
 
-    void *sample_luban_new_toolkit(char *plugin_file);
-    void sample_luban_delete_toolkit(void *toolkit_ptr);
+    void *new_sample_luban_toolkit(char *plugin_file, char* luban_file);
+    void delete_sample_luban_toolkit(void *sample_luban_toolkit_ptr);
 
-    void *sample_luban_new_features(char *feature_json);
-    void sample_luban_delete_features(void *feature_ptr);
+    void *sample_luban_new_user_rows(void *sample_luban_toolkit_ptr, void *pool_getter_ptr,  char *user_feature_json, int user_feature_len);
+    void sample_luban_delete_user_rows(void *rows_ptr);
 
-    char *sample_luban_process_item(void *toolkit_ptr, void *pool_getter_ptr, char *item_id, int item_id_len);
-    char *sample_luban_process_user(void *toolkit_ptr, void *pool_getter_ptr, char *user_feature_json, int user_feature_len);
-    char *sample_luban_process_sample(void *toolkit_ptr, void *pool_getter_ptr, char *user_feature_json, int user_feature_len, char *item_id, int item_id_len);
-
+ 
 #ifdef __cplusplus
 } /* end extern "C"*/
 #endif

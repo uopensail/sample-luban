@@ -28,60 +28,36 @@ void sample_luban_delete_pool_getter(void * pool_getter_ptr) {
         delete pool_getter;
     }
 }
-void *sample_luban_new_features(char *feature_json) {
-    auto feature = new luban::Features(std::string_view(feature_json, strlen(feature_json)));
-    return feature;
+ 
+
+void *sample_luban_new_user_rows(void *sample_luban_toolkit_ptr, void *pool_getter_ptr,  char *user_feature_json, int user_feature_len) {
+    auto pool = (sample_luban::PoolGetter* )pool_getter_ptr;
+    auto user_feature = std::make_shared<luban::Features>(std::string_view{user_feature_json, size_t(user_feature_len)});
+    auto sample_luban_toolkit = (sample_luban::SampleLubanToolKit*)sample_luban_toolkit_ptr;
+    auto rows = sample_luban_toolkit->process_user(pool,user_feature);
+    luban::Rows* raw_ptr = rows.get();
+    rows.reset();
+    return (void*)raw_ptr;
 }
-void sample_luban_delete_features(void *feature_ptr) {
-    auto feature = (luban::Features*)feature_ptr;
+
+void sample_luban_delete_user_rows(void *rows_ptr) {
+    auto feature = (luban::Rows*)rows_ptr;
     if (feature != nullptr) {
         delete feature;
     }
 }
-void*  sample_luban_new_toolkit(char *plugin_file) {
-    auto toolkit = new sample_luban::SampleToolkit(std::string(plugin_file));
+
+void *new_sample_luban_toolkit(char *plugin_file, char* luban_file) {
+    auto toolkit = new sample_luban::SampleLubanToolKit(std::string(luban_file), std::string(plugin_file));
     return (void*) toolkit;
 }
-void sample_luban_delete_toolkit(void*  toolkit_ptr) {
-    auto toolkit = (sample_luban::SampleToolkit*)toolkit_ptr;
+void delete_sample_luban_toolkit(void *sample_luban_toolkit_ptr) {
+    auto toolkit = (sample_luban::SampleLubanToolKit*)sample_luban_toolkit_ptr;
     if (toolkit != nullptr) {
         delete toolkit;
     }
 }
-char*  sample_luban_process_item(void*toolkit_ptr, void *pool_getter_ptr, char* item_id, int item_id_len) {
-    auto pool = (sample_luban::PoolGetter* )pool_getter_ptr;
-    if (pool == nullptr) {
-        return nullptr;
-    }
-    auto item_feature = pool->get(std::string(item_id, item_id_len));
-    if (item_feature == nullptr) {
-        return nullptr;
-    }
-    auto toolkit = (sample_luban::SampleToolkit*)toolkit_ptr;
-    auto processed_feat = toolkit->process_item_featrue(item_feature);
-    std::string feature_json = processed_feat->stringnify();
-    return strdup(feature_json.c_str());
-}
 
-char* sample_luban_process_user(void*toolkit_ptr, void *pool_ptr, char *user_feature_json, int user_feature_len) {
-    auto pool = (sample_luban::PoolGetter* )pool_ptr;
-    auto user_feature = std::make_shared<luban::Features>(std::string_view{user_feature_json, size_t(user_feature_len)});
-    auto toolkit = (sample_luban::SampleToolkit*)toolkit_ptr;
-    auto processed_feat = toolkit->process_user_feature(pool, user_feature);
-    std::string feature_json = processed_feat->stringnify();
-    return strdup(feature_json.c_str());
-}
-
-char*  sample_luban_process_sample(void*toolkit_ptr, void *pool_ptr, char *user_feature_json, int user_feature_len,char* item_id, int item_id_len){
-    auto pool = (sample_luban::PoolGetter* )pool_ptr;
-    auto user_feature = std::make_shared<luban::Features>(std::string_view{user_feature_json, size_t(user_feature_len)});
-    auto toolkit = (sample_luban::SampleToolkit*)toolkit_ptr;
-    auto out = toolkit->process_sample(pool,user_feature, std::string(item_id, item_id_len));
-    if (out == nullptr) {
-        return nullptr;
-    }
-    return strdup(out->stringnify().c_str());
-}
 #ifdef __cplusplus
 } /* end extern "C"*/
 #endif
@@ -137,20 +113,21 @@ luban::SharedFeaturesPtr SampleToolkit::process_item_featrue(luban::SharedFeatur
 
 
 SampleLubanToolKit::SampleLubanToolKit(
-    const std::string& pool_file,
     const std::string &luban_config_file, 
     const std::string& process_plugin_file_path) {
-    std::vector<std::string> files;
-    files.push_back(pool_file);
-    m_pool_getter = std::make_shared<PoolGetter>(files);
     m_luban_kit = std::make_shared<luban::Toolkit>(luban_config_file);
     m_sample_tool_kit = std::make_shared<SampleToolkit>(process_plugin_file_path);
 
 }
-std::shared_ptr<luban::Rows> SampleLubanToolKit::process_sample(const std::string& user_feature_json, const std::string& item_id) {
-    auto user_feature = std::make_shared<luban::Features>(user_feature_json);
-    auto sample = m_sample_tool_kit->process_sample(m_pool_getter.get(),user_feature, std::string(item_id));
+std::shared_ptr<luban::Rows> SampleLubanToolKit::process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id) {
+    auto sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, std::string(item_id));
     auto processed_sample =  m_luban_kit->process(sample);
     return processed_sample;
 }
+
+std::shared_ptr<luban::Rows> SampleLubanToolKit::process_user(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature) {
+    auto feature = m_sample_tool_kit->process_user_feature(pool_getter, user_feature);
+    return m_luban_kit->process_user(feature);
+}
+
 } // sample_luban

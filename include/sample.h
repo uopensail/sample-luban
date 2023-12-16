@@ -39,13 +39,13 @@ class SampleLubanToolKit {
 public:
   SampleLubanToolKit() = delete;
   explicit SampleLubanToolKit(
-    const std::string& pool_file,
     const std::string &luban_config_file, 
     const std::string& process_plugin_file_path);
   ~SampleLubanToolKit() {}
-  std::shared_ptr<luban::Rows> process_sample(const std::string& user_feature_json, const std::string& item_id);
+  std::shared_ptr<luban::Rows> process_user(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature);
+  std::shared_ptr<luban::Rows> process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id);
 private:
-    std::shared_ptr<PoolGetter> m_pool_getter;
+  
     std::shared_ptr<SampleToolkit> m_sample_tool_kit;
     std::shared_ptr<luban::Toolkit> m_luban_kit;
 };
