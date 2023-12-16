@@ -8,6 +8,7 @@ extern "C"
 
     void *sample_luban_new_pool_getter(const char **pool_files, int size);
     void sample_luban_update_pool(void *pool_getter_ptr, int index, char *pool_file);
+    void *sample_luban_get_item_feature_json(void *pool_getter_ptr, char* item_id);
     void sample_luban_delete_pool_getter(void *pool_getter_ptr);
 
     void *new_sample_luban_toolkit(char *plugin_file, char* luban_file);

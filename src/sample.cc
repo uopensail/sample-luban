@@ -16,7 +16,12 @@ void* sample_luban_new_pool_getter(const char** pool_files, int size){
     auto pool_getter = new sample_luban::PoolGetter(files);
     return (void*)pool_getter;
 }
-
+void *sample_luban_get_item_feature_json(void *pool_getter_ptr, char* item_id) {
+    auto pool_getter = (sample_luban::PoolGetter*)pool_getter_ptr;
+    auto item_feature = pool_getter->get(std::string(item_id));
+    auto json_str= item_feature->stringnify();
+    return strdup(json_str.c_str());
+}
 void sample_luban_update_pool(void * pool_getter_ptr,int index , char*pool_file) {
     auto pool_getter = (sample_luban::PoolGetter*)pool_getter_ptr;
     pool_getter->update_pool(index, pool_file);
