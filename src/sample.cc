@@ -48,7 +48,7 @@ void sample_luban_delete_user_rows(void *rows_ptr) {
 }
 
 void *new_sample_luban_toolkit(char *plugin_file, char* luban_file) {
-    auto toolkit = new sample_luban::SampleLubanToolKit(std::string(luban_file), std::string(plugin_file));
+    auto toolkit = new sample_luban::SampleLubanToolKit( std::string(plugin_file),std::string(luban_file));
     return (void*) toolkit;
 }
 void delete_sample_luban_toolkit(void *sample_luban_toolkit_ptr) {
@@ -112,9 +112,9 @@ luban::SharedFeaturesPtr SampleToolkit::process_item_featrue(luban::SharedFeatur
 
 
 
-SampleLubanToolKit::SampleLubanToolKit(
-    const std::string &luban_config_file, 
-    const std::string& process_plugin_file_path) {
+SampleLubanToolKit::SampleLubanToolKit( 
+    const std::string& process_plugin_file_path,
+    const std::string& luban_config_file) {
     m_luban_kit = std::make_shared<luban::Toolkit>(luban_config_file);
     m_sample_tool_kit = std::make_shared<SampleToolkit>(process_plugin_file_path);
 
