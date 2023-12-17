@@ -40,9 +40,10 @@ void *sample_luban_new_user_rows(void *sample_luban_toolkit_ptr, void *pool_gett
     auto user_feature = std::make_shared<luban::Features>(std::string_view{user_feature_json, size_t(user_feature_len)});
     auto sample_luban_toolkit = (sample_luban::SampleLubanToolKit*)sample_luban_toolkit_ptr;
     auto rows = sample_luban_toolkit->process_user(pool,user_feature);
-    luban::Rows* raw_ptr = rows.get();
-    rows.reset();
-    return (void*)raw_ptr;
+    luban::Rows* rows_ptr = rows.get();
+    luban::Rows* clone_rows = new luban::Rows();
+    clone_rows->m_rows = rows_ptr->m_rows;
+    return (void*)clone_rows;
 }
 
 void sample_luban_delete_user_rows(void *rows_ptr) {
