@@ -21,7 +21,7 @@ PYBIND11_MODULE(pysampletoolkit, m) {
         });
 
     py::class_<sample_luban::PoolGetter>(m, "PoolGetter")
-        .def(py::init<std::vector<std::string>>())
+        .def(py::init<const std::vector<std::string>&>())
         .def("get", &sample_luban::PoolGetter::get)
         .def("__repr__", [](const sample_luban::PoolGetter &t) -> std::string {
             return "<pysampletoolkit.PoolGetter>";
