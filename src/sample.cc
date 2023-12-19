@@ -127,6 +127,9 @@ SampleLubanToolKit::SampleLubanToolKit(
 }
 std::shared_ptr<luban::Rows> SampleLubanToolKit::process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id) {
     auto sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, std::string(item_id));
+    if (sample== nullptr) {
+            return nullptr;
+    }
     auto processed_sample =  m_luban_kit->process(sample);
     return processed_sample;
 }
