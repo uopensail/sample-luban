@@ -65,7 +65,7 @@ luban::SharedFeaturesPtr Pool::get(const std::string &key) {
   return nullptr;
 }
 
-PoolGetter::PoolGetter(std::vector<std::string> files) {
+PoolGetter::PoolGetter(const std::vector<std::string>& files) {
   m_pools_size = files.size();
   m_pools = new std::shared_ptr<Pool>[m_pools_size];
   for (int i=0;i<files.size();i++) {
