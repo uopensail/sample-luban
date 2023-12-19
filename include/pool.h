@@ -43,7 +43,7 @@ private:
 
 class PoolGetter {
 public:
-  PoolGetter(std::vector<std::string> files) ;
+  PoolGetter(const std::vector<std::string>& files) ;
   ~PoolGetter(); 
   bool update_pool(int index, std::string file);
   luban::SharedFeaturesPtr get(const std::string &key);
