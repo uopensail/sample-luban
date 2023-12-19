@@ -162,7 +162,7 @@ with open("README.md", "r", encoding="utf-8") as fd:
 
 setup(
     name="pysampletoolkit",
-    version="1.0.1",
+    version="1.0.2",
     description="Python wrapper for sample-luban.",
     license="License :: AGLP 3",
     author="uopensail",
