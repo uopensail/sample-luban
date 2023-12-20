@@ -22,10 +22,10 @@
 
 namespace sample_luban{
     
-class SampleToolkit {
+class SamplePreProcessor {
 public:
-    SampleToolkit(std::string process_plugin_file_path);
-    ~SampleToolkit() = default;
+    SamplePreProcessor(std::string process_plugin_file_path);
+    ~SamplePreProcessor() = default;
     luban::SharedFeaturesPtr process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id);
     luban::SharedFeaturesPtr process_user_feature(PoolGetter* pool, luban::SharedFeaturesPtr user_feature);
     luban::SharedFeaturesPtr process_item_featrue(luban::SharedFeaturesPtr item_feature);
@@ -45,8 +45,22 @@ public:
   std::shared_ptr<luban::Rows> process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id);
 private:
   
-    std::shared_ptr<SampleToolkit> m_sample_tool_kit;
+    std::shared_ptr<SamplePreProcessor> m_sample_tool_kit;
     std::shared_ptr<luban::Toolkit> m_luban_kit;
+};
+
+class SampleToolKit {
+public:
+  SampleToolKit() = delete;
+  explicit SampleToolKit(const std::vector<std::string> & pool_files,
+    const std::string& process_plugin_file_path,
+    const std::string& luban_config_file);
+  ~SampleToolKit() = default;
+  void process_sample_files(const std::vector<std::string> & files, int thread_num,std::string output_dir);
+private:
+    std::string m_process_plugin_file_path;
+    std::string m_luban_config_file;
+    std::shared_ptr<PoolGetter> m_pool;
 };
 
 } // namespace sample_luban

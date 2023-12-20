@@ -1,8 +1,11 @@
 #include "sample.h"
 #include "c_sample.h"
 #include "lua_plugin.h"
-#include <vector>
 
+#include <vector>
+#include <fstream>
+#include <thread>
+#include <json.hpp>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -91,13 +94,22 @@ std::string get_file_name(const std::string& filepath) {
     return filepath;
 }
 
-SampleToolkit::SampleToolkit(std::string process_plugin_file_path) {
+std::string join_paths(const std::string& path1, const std::string& path2) {
+    // 检查是否需要添加路径分隔符
+    if (!path1.empty() && path1.back() != '/' && path1.back() != '\\') {
+        return path1 + "/" + path2;
+    } else {
+        return path1 + path2;
+    }
+}
+
+SamplePreProcessor::SamplePreProcessor(std::string process_plugin_file_path) {
     auto plugin_file = std::string(process_plugin_file_path);
     auto plugin_name = get_file_name(plugin_file);
     m_plugin_name = plugin_name;
     m_plugin = std::make_shared<LuaPluginBridge>(m_plugin_name, plugin_file);
  }
-luban::SharedFeaturesPtr  SampleToolkit::process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id) {
+luban::SharedFeaturesPtr  SamplePreProcessor::process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id) {
     
     auto processed_user =  m_plugin->process_user(user_feature, pool);
     auto item_feature = pool->get(std::string(item_id));
@@ -109,10 +121,10 @@ luban::SharedFeaturesPtr  SampleToolkit::process_sample(PoolGetter* pool, luban:
     return processed_item;
 }
 
-luban::SharedFeaturesPtr SampleToolkit::process_user_feature(PoolGetter* pool, luban::SharedFeaturesPtr user_feature) {
+luban::SharedFeaturesPtr SamplePreProcessor::process_user_feature(PoolGetter* pool, luban::SharedFeaturesPtr user_feature) {
      return m_plugin->process_user(user_feature, pool);
 }
-luban::SharedFeaturesPtr SampleToolkit::process_item_featrue(luban::SharedFeaturesPtr item_feature) {  
+luban::SharedFeaturesPtr SamplePreProcessor::process_item_featrue(luban::SharedFeaturesPtr item_feature) {  
      return m_plugin->process_item(item_feature);
 }
 
@@ -122,7 +134,7 @@ SampleLubanToolKit::SampleLubanToolKit(
     const std::string& process_plugin_file_path,
     const std::string& luban_config_file) {
     m_luban_kit = std::make_shared<luban::Toolkit>(luban_config_file);
-    m_sample_tool_kit = std::make_shared<SampleToolkit>(process_plugin_file_path);
+    m_sample_tool_kit = std::make_shared<SamplePreProcessor>(process_plugin_file_path);
 
 }
 std::shared_ptr<luban::Rows> SampleLubanToolKit::process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id) {
@@ -139,4 +151,89 @@ std::shared_ptr<luban::Rows> SampleLubanToolKit::process_user(PoolGetter* pool_g
     return m_luban_kit->process_user(feature);
 }
 
+
+void process_sample_one_file(std::shared_ptr<PoolGetter> pool, std::shared_ptr<SampleLubanToolKit> toolkit,
+     std::string input_file, std::string output_file) {
+    std::ifstream reader(input_file, std::ios::in);
+    if (!reader) {
+        std::cerr << "read input_file file: " << input_file << " error" << std::endl;
+        exit(-1);
+    }
+    std::string line;
+    std::ofstream writer(output_file); // 打开文件用于写入，如果文件不存在则创建
+
+    while (std::getline(reader, line)) {
+        auto ss = split(line,'\t');
+        if (ss.size() != 3) {
+            continue;
+        }
+        auto user_feature_json = ss[0];
+        auto item_id = ss[1];
+        auto label = ss[2];
+        auto user_features = std::make_shared<luban::Features>(user_feature_json);
+        if (user_features == nullptr) {
+            continue;
+        }
+        auto rows = toolkit->process_sample(pool.get(), user_features,item_id);
+        if (rows == nullptr) {
+            continue;
+        }
+        auto js = rows->to_json();
+        writer << label << "\t" <<  js->dump() <<std::endl;
+    }
+    reader.close();      
+    writer.close();
+}
+void process_sample_files_work(std::shared_ptr<PoolGetter> pool,const std::string& process_plugin_file_path,
+    const std::string& luban_config_file, std::vector<std::string> files, std::string output_dir) {
+    auto toolkit = std::make_shared<SampleLubanToolKit>(process_plugin_file_path, luban_config_file);
+    for (int i=0;i<files.size();i++) {
+        auto file = files[i];
+        auto file_name = get_file_name(file);
+        auto output_file = join_paths(output_dir, file_name);
+        process_sample_one_file(pool, toolkit, file, output_file);
+    }
+}
+
+SampleToolKit::SampleToolKit(const std::vector<std::string> & pool_files,
+    const std::string& process_plugin_file_path,
+    const std::string& luban_config_file):m_process_plugin_file_path(process_plugin_file_path), m_luban_config_file(luban_config_file){
+    m_pool = std::make_shared<PoolGetter>(pool_files);
+}
+
+void SampleToolKit::process_sample_files(const std::vector<std::string>& files, int thread_num, std::string output_dir) {
+    if (files.size() <=0) {
+        return;
+    }
+    if (thread_num <=0) {
+        thread_num =1;
+    }
+    int step = files.size() / thread_num;
+    if (step <=0) {
+        step = 1;
+    }
+    std::vector<std::thread> workers;
+     
+    int i=0;
+    for (;i<files.size();i+= step) {
+        std::vector<std::string> work_files;
+        for (int j=i;j<i+step && j<files.size();j++) {
+            work_files.push_back(files[j]);
+        }
+  
+        workers.push_back(std::thread(process_sample_files_work, m_pool, 
+            m_process_plugin_file_path, m_luban_config_file,work_files, output_dir));
+    }
+    if (i < files.size()) {
+        std::vector<std::string> work_files;
+        for (int j=i;  j<files.size();j++) {
+            work_files.push_back(files[j]);
+        }
+        workers.push_back(std::thread(process_sample_files_work, m_pool, 
+            m_process_plugin_file_path, m_luban_config_file,work_files, output_dir));
+    }
+    for(std::thread &t : workers) {
+        t.join();
+    }
+}
 } // sample_luban
