@@ -20,6 +20,7 @@ endif(APPLE)
 include_directories(include)
 include_directories(plugins)
 include_directories(/usr/local/include)
+include_directories(/usr/local/include/luajit-2.1)
 include_directories(/usr/include)
  
 link_directories(/usr/local/lib)
@@ -32,7 +33,7 @@ SET(SAMPLE_SOURCE src/pool.cc src/lua_plugin.cc src/sample.cc)
 
 
 add_library(sample_luban_static STATIC ${SAMPLE_SOURCE})
-target_link_libraries(sample_luban_static PUBLIC liblua.a  luban_static pthread)
+target_link_libraries(sample_luban_static PUBLIC libluajit-5.1.a  luban_static pthread)
 add_dependencies(sample_luban_static luban_static)
 
 option(PYBIND "Description of PYBIND" ON)
@@ -49,5 +50,5 @@ if (PYBIND)
     find_package(pybind11 REQUIRED)
     # Define the Python module
     pybind11_add_module(pysampletoolkit  src/pysample.cc )
-    target_link_libraries(pysampletoolkit PRIVATE liblua.a sample_luban_static luban_static pthread)
+    target_link_libraries(pysampletoolkit PRIVATE libluajit-5.1.a sample_luban_static luban_static pthread)
 endif()

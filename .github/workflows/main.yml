@@ -51,7 +51,9 @@ jobs:
             tar zxfv lua-5.4.6.tar.gz &&
             cd lua-5.4.6 &&
             make all MYCFLAGS=-fPIC &&
-            make install
+            make install &&
+            cd /tmp && git clone https://luajit.org/git/luajit.git &&
+            cd luajit/ && make &&  make install
           CIBW_BEFORE_ALL_LINUX: >
             cmake --version &&
             yum install -y python3-devel python-devel readline-devel &&
@@ -59,7 +61,9 @@ jobs:
             tar zxfv lua-5.4.6.tar.gz &&
             cd lua-5.4.6 &&
             make all MYCFLAGS=-fPIC &&
-            make install
+            make install &&
+            cd /tmp && git clone https://luajit.org/git/luajit.git &&
+            cd luajit/ && make &&  make install
           CIBW_BEFORE_BUILD: >
             pip install pybind11 ninja
           CIBW_ARCHS_LINUX: auto, aarch64 
