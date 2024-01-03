@@ -45,7 +45,7 @@ public:
   ~SampleLubanToolKit() {}
   std::shared_ptr<luban::Rows> process_user(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature);
   std::tuple<std::string, std::shared_ptr<luban::Rows>> process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id, const std::string& label);
-  luban::SharedFeaturesPtr sample_feature(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id);
+  std::tuple<std::string,luban::SharedFeaturesPtr> sample_feature(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id, const std::string& label);
 
 private:
   

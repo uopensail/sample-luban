@@ -164,7 +164,7 @@ std::shared_ptr<luban::Features> LuaPluginBridge::process_item(std::shared_ptr<l
 std::string LuaPluginBridge::process_label(std::shared_ptr<luban::Features>  sample_features, const std::string& label) {
     sol::optional<sol::protected_function> func = m_lua[this->m_name]["process_label"];
     if (func) {
-        sol::protected_function_result result = func(item_feature);
+        sol::protected_function_result result = (*func)(sample_features, label);
         if (!result.valid()) {
             sol::error err = result;
             
