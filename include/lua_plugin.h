@@ -28,6 +28,8 @@ public:
     virtual std::shared_ptr<luban::Features> process_user(std::shared_ptr<luban::Features>  user_feature, 
         PoolGetter* pool) override;
     virtual std::shared_ptr<luban::Features> process_item(std::shared_ptr<luban::Features>  item_feature) override;
+    virtual std::string process_label(std::shared_ptr<luban::Features>  sample_features, const std::string& label) =0;
+
 private:
     void load(std::string name,std::string file_path);
     void try_load();

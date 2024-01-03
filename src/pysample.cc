@@ -11,6 +11,7 @@ namespace py = pybind11;
 PYBIND11_MODULE(pysampletoolkit, m) {
     py::class_<sample_luban::SampleLubanToolKit>(m, "SampleLubanToolKit")
         .def(py::init<const std::string &,const std::string &>())
+        .def("sample_feature", &sample_luban::SampleLubanToolKit::sample_feature)
         .def("process_sample", &sample_luban::SampleLubanToolKit::process_sample)
         .def("process_user", &sample_luban::SampleLubanToolKit::process_user)
         .def("__repr__", [](const sample_luban::SampleLubanToolKit &t) -> std::string {

@@ -6,7 +6,7 @@ message(STATUS CMAKE_HOST_SYSTEM_VERSION)
 set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -g -ggdb -DDEBUG -Wall -std=c++17 -fPIC")
-set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall -std=c++17 -fPIC")
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O2 -Wall -std=c++17 -fPIC")
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 add_compile_definitions(__GCC__)

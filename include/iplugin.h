@@ -29,6 +29,8 @@ public:
     virtual std::shared_ptr<luban::Features> process_user(std::shared_ptr<luban::Features>  user_feature, 
         PoolGetter* pool) =0;
     virtual std::shared_ptr<luban::Features> process_item(std::shared_ptr<luban::Features>  item_feature) =0;
+    virtual std::string process_label(std::shared_ptr<luban::Features>  sample_features, const std::string& label) =0;
+
 };
 
 typedef  void* (*FeatureProcessFunc)(void *user_feature_ptr, void *pool);
