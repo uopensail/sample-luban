@@ -55,7 +55,12 @@ void sample_luban_delete_user_rows(void *rows_ptr) {
         delete feature;
     }
 }
-
+void* sample_luban_rows_to_json(void* ptr) {
+    auto rows = (luban::Rows*)ptr;
+    auto j = rows->to_json();
+    auto js = j->dump();
+    return strdup(js.c_str());
+}
 void *new_sample_luban_toolkit(char *plugin_file, char* luban_file) {
     auto toolkit = new sample_luban::SampleLubanToolKit( std::string(plugin_file),std::string(luban_file));
     return (void*) toolkit;

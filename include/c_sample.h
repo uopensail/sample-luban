@@ -16,7 +16,7 @@ extern "C"
 
     void *sample_luban_new_user_rows(void *sample_luban_toolkit_ptr, void *pool_getter_ptr,  char *user_feature_json, int user_feature_len);
     void sample_luban_delete_user_rows(void *rows_ptr);
-
+    void* sample_luban_rows_to_json(void* ptr);
  
 #ifdef __cplusplus
 } /* end extern "C"*/
