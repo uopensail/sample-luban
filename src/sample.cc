@@ -55,7 +55,12 @@ void sample_luban_delete_user_rows(void *rows_ptr) {
         delete feature;
     }
 }
-
+void* sample_luban_rows_to_json(void* ptr) {
+    auto rows = (luban::Rows*)ptr;
+    auto j = rows->to_json();
+    auto js = j->dump();
+    return strdup(js.c_str());
+}
 void *new_sample_luban_toolkit(char *plugin_file, char* luban_file) {
     auto toolkit = new sample_luban::SampleLubanToolKit( std::string(plugin_file),std::string(luban_file));
     return (void*) toolkit;
@@ -108,17 +113,18 @@ SamplePreProcessor::SamplePreProcessor(std::string process_plugin_file_path) {
     auto plugin_name = get_file_name(plugin_file);
     m_plugin_name = plugin_name;
     m_plugin = std::make_shared<LuaPluginBridge>(m_plugin_name, plugin_file);
- }
-luban::SharedFeaturesPtr  SamplePreProcessor::process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id) {
+}
+std::tuple<std::string, luban::SharedFeaturesPtr>  SamplePreProcessor::process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id,const std::string& label) {
     
     auto processed_user =  m_plugin->process_user(user_feature, pool);
     auto item_feature = pool->get(std::string(item_id));
     if (item_feature == nullptr || processed_user == nullptr) {
-            return nullptr;
+            return std::make_tuple(label,nullptr);;
     }
     auto processed_item = m_plugin->process_item(item_feature);
     processed_item->merge(processed_user);
-    return processed_item;
+    auto process_label = m_plugin->process_label(processed_item, label);
+    return std::make_tuple(process_label, processed_item);
 }
 
 luban::SharedFeaturesPtr SamplePreProcessor::process_user_feature(PoolGetter* pool, luban::SharedFeaturesPtr user_feature) {
@@ -137,15 +143,26 @@ SampleLubanToolKit::SampleLubanToolKit(
     m_sample_tool_kit = std::make_shared<SamplePreProcessor>(process_plugin_file_path);
 
 }
-std::shared_ptr<luban::Rows> SampleLubanToolKit::process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id) {
-    auto sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, std::string(item_id));
+std::tuple<std::string, std::shared_ptr<luban::Rows> > SampleLubanToolKit::process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id, const std::string& label) {
+    auto label_sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, std::string(item_id),label);
+    std::string process_label = std::get<0>(label_sample);
+    luban::SharedFeaturesPtr sample =  std::get<1>(label_sample);
     if (sample== nullptr) {
-            return nullptr;
+            return std::make_tuple(process_label,nullptr);
     }
-    auto processed_sample =  m_luban_kit->process(sample);
-    return processed_sample;
+    auto processed_sample_rows =  m_luban_kit->process(sample);
+    return std::make_tuple(process_label, processed_sample_rows);
 }
 
+std::tuple<std::string,luban::SharedFeaturesPtr> SampleLubanToolKit::sample_feature(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id, const std::string& label) {
+    auto label_sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, std::string(item_id),label);
+    std::string process_label = std::get<0>(label_sample);
+    luban::SharedFeaturesPtr sample =  std::get<1>(label_sample);
+    if (sample== nullptr) {
+            return std::make_tuple(process_label,nullptr);
+    }
+    return std::make_tuple(process_label,sample);
+}
 std::shared_ptr<luban::Rows> SampleLubanToolKit::process_user(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature) {
     auto feature = m_sample_tool_kit->process_user_feature(pool_getter, user_feature);
     return m_luban_kit->process_user(feature);
@@ -174,12 +191,14 @@ void process_sample_one_file(std::shared_ptr<PoolGetter> pool, std::shared_ptr<S
         if (user_features == nullptr) {
             continue;
         }
-        auto rows = toolkit->process_sample(pool.get(), user_features,item_id);
+        auto label_rows = toolkit->process_sample(pool.get(), user_features,item_id, label);
+        std::string process_label = std::get<0>(label_rows);
+        std::shared_ptr<luban::Rows> rows =  std::get<1>(label_rows);
         if (rows == nullptr) {
             continue;
         }
         auto js = rows->to_json();
-        writer << label << "\t" <<  js->dump() <<std::endl;
+        writer << process_label << "\t" <<  js->dump() <<std::endl;
     }
     reader.close();      
     writer.close();

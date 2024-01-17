@@ -18,6 +18,8 @@
 #include "iplugin.h"
 #include "pool.h"
 #include "toolkit.h"
+#include <tuple>
+
 
 
 namespace sample_luban{
@@ -26,7 +28,7 @@ class SamplePreProcessor {
 public:
     SamplePreProcessor(std::string process_plugin_file_path);
     ~SamplePreProcessor() = default;
-    luban::SharedFeaturesPtr process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id);
+    std::tuple<std::string, luban::SharedFeaturesPtr> process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id, const std::string& label);
     luban::SharedFeaturesPtr process_user_feature(PoolGetter* pool, luban::SharedFeaturesPtr user_feature);
     luban::SharedFeaturesPtr process_item_featrue(luban::SharedFeaturesPtr item_feature);
 private:
@@ -42,7 +44,9 @@ public:
     const std::string& luban_config_file);
   ~SampleLubanToolKit() {}
   std::shared_ptr<luban::Rows> process_user(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature);
-  std::shared_ptr<luban::Rows> process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id);
+  std::tuple<std::string, std::shared_ptr<luban::Rows>> process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id, const std::string& label);
+  std::tuple<std::string,luban::SharedFeaturesPtr> sample_feature(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id, const std::string& label);
+
 private:
   
     std::shared_ptr<SamplePreProcessor> m_sample_tool_kit;

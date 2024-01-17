@@ -104,7 +104,7 @@ LuaPluginBridge::LuaPluginBridge(std::string name, std::string file_path) :m_nam
 }
  
 void LuaPluginBridge::load(std::string name, std::string file_path)  {
-    m_lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::io, sol::lib::table);
+    m_lua.open_libraries(sol::lib::base, sol::lib::string,sol::lib::os,sol::lib::math, sol::lib::io, sol::lib::table);
     bind_lua(m_lua);
     m_lua.safe_script_file(std::string(file_path));
 
@@ -160,4 +160,23 @@ std::shared_ptr<luban::Features> LuaPluginBridge::process_item(std::shared_ptr<l
         return ret;
     }
 }
+
+std::string LuaPluginBridge::process_label(std::shared_ptr<luban::Features>  sample_features, const std::string& label) {
+    sol::optional<sol::protected_function> func = m_lua[this->m_name]["process_label"];
+    if (func) {
+        sol::protected_function_result result = (*func)(sample_features, label);
+        if (!result.valid()) {
+            sol::error err = result;
+            
+            std::cerr << "Error calling lua function: " << err.what() << std::endl;
+            return label;
+        }else {
+    
+            std::string ret = result.get<std::string>();
+            return ret;
+        }
+    }
+    return label;
+}
+
 }
