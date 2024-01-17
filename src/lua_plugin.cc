@@ -104,7 +104,7 @@ LuaPluginBridge::LuaPluginBridge(std::string name, std::string file_path) :m_nam
 }
  
 void LuaPluginBridge::load(std::string name, std::string file_path)  {
-    m_lua.open_libraries(sol::lib::base, sol::lib::string, sol::lib::io, sol::lib::table);
+    m_lua.open_libraries(sol::lib::base, sol::lib::string,sol::lib::os,sol::lib::math, sol::lib::io, sol::lib::table);
     bind_lua(m_lua);
     m_lua.safe_script_file(std::string(file_path));
 
