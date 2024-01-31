@@ -45,8 +45,8 @@ std::unordered_map<std::string, luban::SharedFeaturesPtr> load(std::string file_
   reader.close();
   return items;
 }
-Pool::Pool(std::string_view file_path) {
- m_items = load(std::string(file_path));
+Pool::Pool(std::string file_path) {
+ m_items = load(file_path);
 }
 
 luban::SharedFeaturesPtr Pool::operator[](const std::string &key) {
@@ -72,7 +72,13 @@ PoolGetter::PoolGetter(const std::vector<std::string>& files) {
       m_pools[i]= std::make_shared<Pool>(files[i]);
   }
 }
-
+PoolGetter::PoolGetter(const std::vector<std::shared_ptr<Pool> >& pools)  {
+  m_pools_size = pools.size();
+  m_pools = new std::shared_ptr<Pool>[m_pools_size];
+  for (int i=0;i<pools.size();i++) {
+      m_pools[i]= pools[i];
+  }
+}
 PoolGetter::~PoolGetter() {
   delete []m_pools;
 }

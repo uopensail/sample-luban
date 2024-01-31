@@ -30,7 +30,7 @@ std::vector<std::string> split(const std::string& str, char delimiter) ;
 class Pool {
 public:
   Pool() = default;
-  Pool(std::string_view file_path);
+  Pool(std::string file_path);
   ~Pool() = default;
   Pool(const Pool&) = delete;
   Pool& operator=(const Pool&) = delete;
@@ -44,6 +44,7 @@ private:
 class PoolGetter {
 public:
   PoolGetter(const std::vector<std::string>& files) ;
+  PoolGetter(const std::vector<std::shared_ptr<Pool> >& pools) ;
   ~PoolGetter(); 
   bool update_pool(int index, std::string file);
   luban::SharedFeaturesPtr get(const std::string &key);

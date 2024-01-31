@@ -116,8 +116,13 @@ SamplePreProcessor::SamplePreProcessor(std::string process_plugin_file_path) {
 }
 std::tuple<std::string, luban::SharedFeaturesPtr>  SamplePreProcessor::process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, std::string_view item_id,const std::string& label) {
     
-    auto processed_user =  m_plugin->process_user(user_feature, pool);
     auto item_feature = pool->get(std::string(item_id));
+    return this->process_sample(pool, user_feature,item_feature, label);
+}
+
+std::tuple<std::string, luban::SharedFeaturesPtr>  SamplePreProcessor::process_sample(PoolGetter* pool, luban::SharedFeaturesPtr user_feature, luban::SharedFeaturesPtr item_feature,const std::string& label) {
+    
+    auto processed_user =  m_plugin->process_user(user_feature, pool);
     if (item_feature == nullptr || processed_user == nullptr) {
             return std::make_tuple(label,nullptr);;
     }
@@ -144,7 +149,18 @@ SampleLubanToolKit::SampleLubanToolKit(
 
 }
 std::tuple<std::string, std::shared_ptr<luban::Rows> > SampleLubanToolKit::process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, const std::string& item_id, const std::string& label) {
-    auto label_sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, std::string(item_id),label);
+    auto label_sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, item_id,label);
+    std::string process_label = std::get<0>(label_sample);
+    luban::SharedFeaturesPtr sample =  std::get<1>(label_sample);
+    if (sample== nullptr) {
+            return std::make_tuple(process_label,nullptr);
+    }
+    auto processed_sample_rows =  m_luban_kit->process(sample);
+    return std::make_tuple(process_label, processed_sample_rows);
+}
+ 
+std::tuple<std::string, std::shared_ptr<luban::Rows> > SampleLubanToolKit::process_sample(PoolGetter* pool_getter, luban::SharedFeaturesPtr user_feature, luban::SharedFeaturesPtr item_feature, const std::string& label) {
+    auto label_sample = m_sample_tool_kit->process_sample(pool_getter ,user_feature, item_feature,label);
     std::string process_label = std::get<0>(label_sample);
     luban::SharedFeaturesPtr sample =  std::get<1>(label_sample);
     if (sample== nullptr) {
