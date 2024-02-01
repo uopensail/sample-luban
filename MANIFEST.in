@@ -5,3 +5,6 @@ include README.md
 include requirements.txt
 include CMakeLists.txt
 include .gitmodules
+recursive-exclude .git *
+recursive-include luban *
+recursive-include sol2 *
