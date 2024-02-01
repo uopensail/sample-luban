@@ -33,8 +33,8 @@ void features_template_set(luban::Features& features, const std::string& key, co
         *p = value;
         features.set(key, p);
 }
-void features_set_fvalue(luban::Features& features, const std::string& key, const luban::Parameter * fv) {
-    features.set(key,  std::make_shared<luban::Parameter>(*fv));
+void features_set_fvalue(luban::Features& features, const std::string& key, luban::SharedParameter fv) {
+    features.set(key, fv);
 }
 
 
@@ -60,8 +60,8 @@ sol::object get_fvalue(lua_State* L, luban::Parameter*fv) {
 
 void bind_lua(sol::state& lua) {
      
-    lua.set_function("IntValue",[](int64_t vv){return vv;});
-    lua.set_function("FloatValue",[](float vv){return vv;});
+    lua.set_function("IntValue",[](int64_t vv){return std::make_shared<luban::Parameter>(vv);});
+    lua.set_function("FloatValue",[](float vv){return std::make_shared<luban::Parameter>(vv);});
     lua.set_function("StrValue",[](const std::string& vv){return vv;});
     lua.set_function("IntsValue",[](std::vector<int64_t> vv){return vv;});
     lua.set_function("FloatsValue",[](std::vector<float> vv){return vv;});
@@ -79,13 +79,11 @@ void bind_lua(sol::state& lua) {
             return get_fvalue(lua,fv);
         },
         sol::meta_function::new_index, sol::overload(
-            &features_template_set<int64_t>,
-            &features_template_set<float>,
             &features_template_set<std::string>,
             &features_template_set<std::vector<std::string>>,
             &features_template_set<std::vector<int64_t>>,
             &features_template_set<std::vector<float> >,
-            features_set_fvalue
+            &features_set_fvalue
         )
     );
 
